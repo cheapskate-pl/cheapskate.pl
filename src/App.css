@@ -1,0 +1,22 @@
+.App {
+  margin: 20px 100px auto;
+
+}
+
+.App-header {
+  display: flex;
+  margin-bottom: 40px;
+  flex-direction: column;
+  font-size: calc(10px + 2vmin);
+}
+
+.Section-header {
+  display: flex;
+  margin-bottom: 40px;
+  flex-direction: column;
+  font-size: calc(5px + 2vmin);
+}
+
+.CalculateButton {
+  margin: 60px;
+}
