@@ -340,53 +340,6 @@ function App() {
                             </table>
                         </div>
                     </section>
-                    <section>
-                        <header className="major">
-                            <h3>Wynagrodznie roczne</h3>
-                        </header>
-                        <div className="table-wrapper">
-                            <table>
-                                <thead>
-                                <tr>
-                                    <td>Miesiąc</td>
-                                    <td>Wynagrodzenie brutto</td>
-                                    <td>Benefity</td>
-                                    <td>Składka emerytalna</td>
-                                    <td>Składka rentowa</td>
-                                    <td>Składka chorobowa</td>
-                                    <td>Składka zdrowotna</td>
-                                    <td>Zaliczka PIT</td>
-                                    {ppkOn ? <td>PPK pracownika</td> : undefined}
-                                    <td>Netto</td>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {months.map((month, index) => {
-                                        const row = rows[index]
-                                        return (<tr key={index}>
-                                            <td>{month}</td>
-                                            <td>
-                                                <input type="number" value={row.grossSalary} onChange={updateGrossInMonth(index)}>
-                                                </input>
-                                            </td>
-                                            <td>
-                                                <input type="number" value={row.benefitsSalary} onChange={console.log}>
-                                                </input>
-                                            </td>
-                                            <td>{plnFormatter.format(row.pensionContribution)}</td>
-                                            <td>{plnFormatter.format(row.disabilityPensionContribution)}</td>
-                                            <td>{plnFormatter.format(row.sicknessContribution)}</td>
-                                            <td>{plnFormatter.format(row.healthCareContribution)}</td>
-                                            <td>{plnFormatter.format(row.pit)}</td>
-                                            {ppkOn ? <td>{plnFormatter.format(row.ppkEmployee)}</td> : undefined}
-                                            <td><strong>{plnFormatter.format(row.netto)}</strong></td>
-                                        </tr>)
-                                    }
-                                )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
                 </div>
             </div>
         </div>
