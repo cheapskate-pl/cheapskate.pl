@@ -94,6 +94,20 @@ function App() {
         calculate(newRows)
     }
 
+    const updateBenefitInMonth = (month) => (event) => {
+        const newRows = rows.map((row, index) => {
+            if(index === month) {
+                return {
+                    ...row,
+                    benefitsSalary: parseFloat(event.target.value)
+                }
+            }
+            return row
+        })
+        setRows(newRows)
+        calculate(newRows)
+    }
+
     const copyGross = () => {
         const newRows = rows.map(row => {
             return {
@@ -323,7 +337,7 @@ function App() {
                                                 </input>
                                             </td>
                                             <td>
-                                                <input type="number" value={row.benefitsSalary} onChange={console.log}>
+                                                <input type="number" value={row.benefitsSalary} onChange={updateBenefitInMonth(index)}>
                                                 </input>
                                             </td>
                                             <td>{plnFormatter.format(row.pensionContribution)}</td>

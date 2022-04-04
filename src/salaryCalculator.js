@@ -14,16 +14,27 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
     const incomeCosts = (workLocally ? 250 : 300)
 
     for (let month = 0; month < 12; month++) {
+
+
+
         const grossSalary = rows[month].grossSalary
         const benefitsSalary = rows[month].benefitsSalary
-        const grossSalarySum = grossSalary + benefitsSalary
+        let grossSalarySum = grossSalary + benefitsSalary
         const pensionContribution = calculatePensionContribution(month, grossSalarySum);
         const disabilityPensionContribution = calculateDisabilityPensionContribution(month, grossSalarySum)
 
+        let ppkEmployee = 0
+        let ppkEmployer = 0
+
+        if (ppkOn && ppkBeginningMonth <= month) {
+            ppkEmployee = grossSalarySum * (ppkOn ? employeePPKRate : 0);
+            ppkEmployer = grossSalarySum * (ppkOn ? employerPPKRate : 0);
+        }
+        // grossSalarySum+=ppkEmployer
         const sicknessContribution = grossSalarySum * 0.0245;
         const healthCareContribution = (grossSalarySum - sicknessContribution - disabilityPensionContribution - pensionContribution) * 0.09;
 
-        let pitBase = grossSalarySum - sicknessContribution - disabilityPensionContribution - pensionContribution;
+        let pitBase = grossSalarySum - sicknessContribution - disabilityPensionContribution - pensionContribution + ppkEmployer;
 
         let increasedCostsDeduction = 0
         let increasedCostsDeductionApplied = false
@@ -68,14 +79,6 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
         pit = pit - (pit2Checked ? (5100 / 12) : 0)
         pitWhenCommonSettlement = pitWhenCommonSettlement - (pit2Checked ? (10200 / 12) : 0)
 
-        let ppkEmployee = 0
-        let ppkEmployer = 0
-
-        if (ppkOn && ppkBeginningMonth <= month) {
-            ppkEmployee = grossSalarySum * (ppkOn ? employeePPKRate : 0);
-            ppkEmployer = grossSalarySum * (ppkOn ? employerPPKRate : 0);
-        }
-
         newRows.push({
             grossSalary,
             benefitsSalary,
@@ -85,7 +88,7 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
             disabilityPensionContribution: disabilityPensionContribution,
             sicknessContribution: sicknessContribution,
             healthCareContribution: healthCareContribution,
-            pit: pit,
+            pit: Math.round(pit),
             pitWhenCommonSettlement,
             pit32,
             ppkEmployer,
