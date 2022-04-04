@@ -94,7 +94,7 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
             ppkEmployer,
             ppkEmployee,
             aboveCostDeduction: increasedCostsDeductionApplied,
-            netto: grossSalary - sicknessContribution - disabilityPensionContribution - pensionContribution - healthCareContribution - pit - ppkEmployee
+            netto: grossSalary - sicknessContribution - disabilityPensionContribution - pensionContribution - healthCareContribution - Math.round(pit) - ppkEmployee
         });
     }
 
