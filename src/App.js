@@ -69,8 +69,6 @@ function App() {
         }
     }
 
-
-
     const defaultValue = {
         grossSalary: 0,
         benefitsSalary: 0
@@ -78,6 +76,7 @@ function App() {
     const [rows, setRows] = useState(months.map(() => ({...defaultValue})));
     useEffect(() => {
         calculate(rows);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [workLocally, pit2Checked, increasedCosts, incresedConstsBeginningMonth, increasedCostsRate, commonSettlement,
         ppkOn, ppkBeginningMonth, employeePPK, employerPPK])
 
