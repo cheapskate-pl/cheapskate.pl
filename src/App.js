@@ -32,7 +32,7 @@ function App() {
     const [employeePPK, changeEmployeePPK] = useState(0.02);
     const [employerPPK, changeEmployerPPK] = useState(0.015);
     const [increasedCostsRate, changeIncreasedCostsRate] = useState(0.8);
-    const [taxReturn, changeTaxReturn] = useState(0);
+    // const [taxReturn, changeTaxReturn] = useState(0);
 
 
     const handleCheckboxInputChange = (setter) => (event) => {
@@ -54,7 +54,7 @@ function App() {
         const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, incresedConstsBeginningMonth, increasedCostsRate, commonSettlement,
             ppkOn, ppkBeginningMonth, employeePPK, employerPPK)
         setRows(result.rows)
-        changeTaxReturn(result.taxReturn)
+        // changeTaxReturn(result.taxReturn)
     }
 
     function onGrossSalaryChange(e) {
