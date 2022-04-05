@@ -14,25 +14,89 @@ const plnFormatter = new Intl.NumberFormat('pl-PL', {
 });
 
 
+const STATE_KEY = "state";
+
+const defaultMonthValue = {
+    grossSalary: 0,
+    benefitsSalary: 0
+}
+
+const defaults = {
+    grossSalary: 0,
+    benefitsSalary: 0,
+    pit2Checked: true,
+    workLocally: true,
+    ppkOn: false,
+    ppkBeginningMonth: 0,
+    increasedCosts: false,
+    increasedCostsBeginningMonth: 0,
+    employeePPK: 0.02,
+    employerPPK: 0.015,
+    increasedCostsRate: 0.8,
+    commonSettlement: false,
+    commonSettlementWithSeparateSalary: false,
+    rows: months.map(() => ({...defaultMonthValue}))
+};
+
+const state = JSON.parse(localStorage.getItem(STATE_KEY) || "{}");
+
+function getInitialValue(name) {
+    if (state && state[name] !== undefined) {
+        return state[name]
+    }
+    return defaults[name]
+}
+
 function App() {
 
-    const [grossSalary, changeGrossSalary] = useState(0);
-    const [benefitsSalary, changeBenefitsSalary] = useState(0);
-
-    const [pit2Checked, changePit2Checked] = useState(true);
-    const [workLocally, changeWorkLocally] = useState(true);
-
-    const [commonSettlement, changeCommonSettlement] = useState(false);
-    const [commonSettlementWithSeparateSalary, changeCommonSettlementWithSeparateSalary] = useState(false);
-
-    const [ppkOn, changePPKOn] = useState(false);
-    const [ppkBeginningMonth, changePpkBeginningMonth] = useState(0);
-    const [increasedCosts, changeIncreasedCosts] = useState(false);
-    const [incresedConstsBeginningMonth, changeIncresedConstsBeginningMonth] = useState(0);
-    const [employeePPK, changeEmployeePPK] = useState(0.02);
-    const [employerPPK, changeEmployerPPK] = useState(0.015);
-    const [increasedCostsRate, changeIncreasedCostsRate] = useState(0.8);
+    const [grossSalary, changeGrossSalary] = useState(getInitialValue("grossSalary"));
+    const [benefitsSalary, changeBenefitsSalary] = useState(getInitialValue("benefitsSalary"));
+    const [pit2Checked, changePit2Checked] = useState(getInitialValue("pit2Checked"));
+    const [workLocally, changeWorkLocally] = useState(getInitialValue("workLocally"));
+    const [ppkOn, changePPKOn] = useState(getInitialValue("ppkOn"));
+    const [ppkBeginningMonth, changePpkBeginningMonth] = useState(getInitialValue("ppkBeginningMonth"));
+    const [increasedCosts, changeIncreasedCosts] = useState(getInitialValue("increasedCosts"));
+    const [increasedCostsBeginningMonth, changeIncreasedCostsBeginningMonth] = useState(getInitialValue("increasedCostsBeginningMonth"));
+    const [employeePPK, changeEmployeePPK] = useState(getInitialValue("employeePPK"));
+    const [employerPPK, changeEmployerPPK] = useState(getInitialValue("employerPPK"));
+    const [increasedCostsRate, changeIncreasedCostsRate] = useState(getInitialValue("increasedCostsRate"));
     // const [taxReturn, changeTaxReturn] = useState(0);
+    const [commonSettlement, changeCommonSettlement] = useState(getInitialValue("commonSettlement"));
+    const [commonSettlementWithSeparateSalary, changeCommonSettlementWithSeparateSalary] = useState(getInitialValue("commonSettlementWithSeparateSalary"));
+    const [rows, setRows] = useState(getInitialValue("rows"));
+
+    useEffect(() => {
+        const state = {
+            grossSalary,
+            benefitsSalary,
+            pit2Checked,
+            workLocally,
+            ppkOn,
+            ppkBeginningMonth,
+            increasedCosts,
+            increasedCostsBeginningMonth,
+            employeePPK,
+            employerPPK,
+            increasedCostsRate,
+            commonSettlement,
+            commonSettlementWithSeparateSalary,
+            rows
+        }
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }, [grossSalary,
+        benefitsSalary,
+        pit2Checked,
+        workLocally,
+        ppkOn,
+        ppkBeginningMonth,
+        increasedCosts,
+        increasedCostsBeginningMonth,
+        employeePPK,
+        employerPPK,
+        increasedCostsRate,
+        commonSettlement,
+        commonSettlementWithSeparateSalary,
+        rows]);
 
 
     const handleCheckboxInputChange = (setter) => (event) => {
@@ -51,7 +115,7 @@ function App() {
     }
 
     const calculate = (rows) => {
-        const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, incresedConstsBeginningMonth, increasedCostsRate, commonSettlement,
+        const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
             ppkOn, ppkBeginningMonth, employeePPK, employerPPK)
         setRows(result.rows)
         // changeTaxReturn(result.taxReturn)
@@ -69,20 +133,16 @@ function App() {
         }
     }
 
-    const defaultValue = {
-        grossSalary: 0,
-        benefitsSalary: 0
-    }
-    const [rows, setRows] = useState(months.map(() => ({...defaultValue})));
+
     useEffect(() => {
         calculate(rows);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [workLocally, pit2Checked, increasedCosts, incresedConstsBeginningMonth, increasedCostsRate, commonSettlement,
+    }, [workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
         ppkOn, ppkBeginningMonth, employeePPK, employerPPK])
 
     const updateGrossInMonth = (month) => (event) => {
         const newRows = rows.map((row, index) => {
-            if(index === month) {
+            if (index === month) {
                 return {
                     ...row,
                     grossSalary: parseFloat(event.target.value)
@@ -96,7 +156,7 @@ function App() {
 
     const updateBenefitInMonth = (month) => (event) => {
         const newRows = rows.map((row, index) => {
-            if(index === month) {
+            if (index === month) {
                 return {
                     ...row,
                     benefitsSalary: parseFloat(event.target.value)
@@ -215,7 +275,8 @@ function App() {
                                         <Fragment>
                                             <li>
                                                 <div>
-                                                    <select value={increasedCostsRate} onChange={handleSelectInputChange(changeIncreasedCostsRate)}>
+                                                    <select value={increasedCostsRate}
+                                                            onChange={handleSelectInputChange(changeIncreasedCostsRate)}>
                                                         <option label="80%">0.8</option>
                                                         <option label="70%">0.7</option>
                                                         <option label="60%">0.6</option>
@@ -228,7 +289,8 @@ function App() {
                                                     <label>Procent pracy twórczej</label>
                                                 </div>
                                                 <div>
-                                                    <select value={incresedConstsBeginningMonth} onChange={handleSelectInputChange(changeIncresedConstsBeginningMonth)}>
+                                                    <select value={increasedCostsBeginningMonth}
+                                                            onChange={handleSelectInputChange(changeIncreasedCostsBeginningMonth)}>
                                                         {months.map((month, index) => (
                                                                 <option label={month}>{index}</option>
                                                             )
@@ -333,11 +395,13 @@ function App() {
                                         return (<tr key={index}>
                                             <td>{month}</td>
                                             <td>
-                                                <input type="number" value={row.grossSalary} onChange={updateGrossInMonth(index)}>
+                                                <input type="number" value={row.grossSalary}
+                                                       onChange={updateGrossInMonth(index)}>
                                                 </input>
                                             </td>
                                             <td>
-                                                <input type="number" value={row.benefitsSalary} onChange={updateBenefitInMonth(index)}>
+                                                <input type="number" value={row.benefitsSalary}
+                                                       onChange={updateBenefitInMonth(index)}>
                                                 </input>
                                             </td>
                                             <td>{plnFormatter.format(row.pensionContribution)}</td>
