@@ -6,7 +6,7 @@ const months = [
 ]
 
 export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
-                          incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate) {
+                          incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate, hasChildren, childrenNumber) {
     const newRows = [];
 
     let increasedCostsFromBeginning = 0;
@@ -14,8 +14,6 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
     const incomeCosts = (workLocally ? 250 : 300)
 
     for (let month = 0; month < 12; month++) {
-
-
 
         const grossSalary = rows[month].grossSalary
         const benefitsSalary = rows[month].benefitsSalary
@@ -111,6 +109,25 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
             }
         }
         taxReturn+=additionalReturn
+
+    }
+    if(hasChildren) {
+        const firstAndSecondChildReduction = 1112.04
+        const thirdChildReduction = 2000.04
+        const nextChildReduction =  2700.00
+
+        if(childrenNumber > 0) {
+            taxReturn +=firstAndSecondChildReduction
+        }
+        if(childrenNumber > 1) {
+            taxReturn +=firstAndSecondChildReduction
+        }
+        if(childrenNumber > 2) {
+            taxReturn +=thirdChildReduction
+        }
+        if(childrenNumber > 3) {
+            taxReturn += nextChildReduction * (3-childrenNumber)
+        }
 
     }
 

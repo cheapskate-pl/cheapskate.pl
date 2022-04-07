@@ -2,11 +2,9 @@ import './App.css';
 import * as React from 'react';
 import {Fragment, useEffect, useState} from 'react';
 import {calculateSalary} from "./salaryCalculator";
+import ReactTooltip from 'react-tooltip';
+import { months} from './constants' 
 
-
-const months = [
-    'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
-]
 
 const plnFormatter = new Intl.NumberFormat('pl-PL', {
     style: 'currency',
@@ -34,7 +32,11 @@ const defaults = {
     employerPPK: 0.015,
     increasedCostsRate: 0.8,
     commonSettlement: false,
+    payAlways17: false,
     commonSettlementWithSeparateSalary: false,
+    taxReturn: 0,
+    childrenNumber: 0,
+    hasChildren: false,
     rows: months.map(() => ({...defaultMonthValue}))
 };
 
@@ -45,6 +47,13 @@ function getInitialValue(name) {
         return state[name]
     }
     return defaults[name]
+}
+
+function pitDetails(row) {
+    if(!row.pit32) {
+        return `stawka 17%`
+    }
+    return `stawka 32%`
 }
 
 function App() {
@@ -60,10 +69,14 @@ function App() {
     const [employeePPK, changeEmployeePPK] = useState(getInitialValue("employeePPK"));
     const [employerPPK, changeEmployerPPK] = useState(getInitialValue("employerPPK"));
     const [increasedCostsRate, changeIncreasedCostsRate] = useState(getInitialValue("increasedCostsRate"));
-    // const [taxReturn, changeTaxReturn] = useState(0);
+    const [taxReturn, changeTaxReturn] = useState(getInitialValue("taxReturn"));
     const [commonSettlement, changeCommonSettlement] = useState(getInitialValue("commonSettlement"));
     const [commonSettlementWithSeparateSalary, changeCommonSettlementWithSeparateSalary] = useState(getInitialValue("commonSettlementWithSeparateSalary"));
+    const [payAlways17, setPayAlways17] = useState(getInitialValue("payAlways17"));
     const [rows, setRows] = useState(getInitialValue("rows"));
+    const [hasChildren, setHasChildren] = useState(getInitialValue("hasChildren"));
+    const [childrenNumber, setChildrenNumber] = useState(getInitialValue("childrenNumber"));
+    
 
     useEffect(() => {
         const state = {
@@ -80,6 +93,8 @@ function App() {
             increasedCostsRate,
             commonSettlement,
             commonSettlementWithSeparateSalary,
+            hasChildren,
+            childrenNumber,
             rows
         }
         localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -96,6 +111,8 @@ function App() {
         increasedCostsRate,
         commonSettlement,
         commonSettlementWithSeparateSalary,
+        hasChildren,
+        childrenNumber,
         rows]);
 
 
@@ -116,9 +133,9 @@ function App() {
 
     const calculate = (rows) => {
         const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-            ppkOn, ppkBeginningMonth, employeePPK, employerPPK)
+            ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber)
         setRows(result.rows)
-        // changeTaxReturn(result.taxReturn)
+        changeTaxReturn(result.taxReturn)
     }
 
     function onGrossSalaryChange(e) {
@@ -138,7 +155,7 @@ function App() {
         calculate(rows);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-        ppkOn, ppkBeginningMonth, employeePPK, employerPPK])
+        ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber])
 
     const updateGrossInMonth = (month) => (event) => {
         const newRows = rows.map((row, index) => {
@@ -320,7 +337,7 @@ function App() {
                                 </ul>
                             </article>
                             <article>
-                                <h4>Wspólne rozlicznie z małżonkiem (WIP)</h4>
+                                <h4>Wspólne rozlicznie z małżonkiem i ulgi</h4>
                                 <ul className="actions">
                                     <li>
                                         <input type="checkbox" id="commonSettlement" checked={commonSettlement}
@@ -329,16 +346,20 @@ function App() {
                                         <label htmlFor="commonSettlement">Wspólne rozliczenie</label>
                                     </li>
                                     <li>
-                                        <input type="checkbox" id="commonSettlementType"
-                                               checked={commonSettlementWithSeparateSalary} disabled={!commonSettlement}
-                                               onChange={handleCheckboxInputChange(changeCommonSettlementWithSeparateSalary)}>
+                                        <input type="checkbox" id="hasChildren" checked={hasChildren}
+                                               onChange={handleCheckboxInputChange(setHasChildren)}>
                                         </input>
-                                        <label htmlFor="commonSettlementType">Chcę
-                                            wprowadzić wynagrodzenie małżonka. <br/>Pozostaw niezaznaczone jesli
-                                            małżonek nie
-                                            otrzymuje wynagrodzenia.
-                                        </label>
+                                        <label htmlFor="hasChildren">Posiadam dzieci</label>
                                     </li>
+                                    {
+                                        hasChildren ?
+                                        <li>
+                                        <input type="number" id="childrenNumber" value={childrenNumber}
+                                               onChange={handleSelectInputChange(setChildrenNumber)}>
+                                        </input>
+                                        <label htmlFor="childrenNumber">Ilosć dzieci</label>
+                                    </li> : ''
+                                    }
                                 </ul>
 
                             </article>
@@ -408,7 +429,7 @@ function App() {
                                             <td>{plnFormatter.format(row.disabilityPensionContribution)}</td>
                                             <td>{plnFormatter.format(row.sicknessContribution)}</td>
                                             <td>{plnFormatter.format(row.healthCareContribution)}</td>
-                                            <td>{plnFormatter.format(row.pit)}</td>
+                                            <td><p data-multiline="true" data-tip={pitDetails(row)}>{plnFormatter.format(row.pit)}</p></td>
                                             {ppkOn ? <td>{plnFormatter.format(row.ppkEmployee)}</td> : undefined}
                                             <td><strong>{plnFormatter.format(row.netto)}</strong></td>
                                         </tr>)
@@ -418,8 +439,40 @@ function App() {
                             </table>
                         </div>
                     </section>
+                    <section>
+                    <header className="major">
+                            <h3>Podsumowanie roku</h3>
+                        </header>
+                        <div className="table-wrapper">
+                        <table>
+                                <thead>
+                                <tr>
+                                    <td>Suma wynagrodzenia brutto z benefitami</td>
+                                    <td>Suma PPK (pracodawcy, pracownika)</td>
+                                    <td>Suma Netto</td>
+                                    <td>Srednia Netto</td>
+                                    <td>Zwrot podatku</td>
+                                    <td>Srednia Netto<br/> uwzgledniajac zwrot podatku</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>{plnFormatter.format(rows.map(row => row.grossSalary + row.benefitsSalary).reduce((a,b) => a+b))}</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a,b) => a+b))}&nbsp;
+                                    ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a,b) => a+b))},&nbsp;  
+                                    {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a,b) => a+b))})</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a,b) => a+b))}</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a,b) => a+b) / 12)}</td>
+                                    <td>{plnFormatter.format(taxReturn)}</td>
+                                    <td><b>{plnFormatter.format((rows.map(row => row.netto).reduce((a,b) => a+b) + taxReturn)/12)}</b></td>
+                                </tr>
+                                </tbody>
+                                </table>
+                        </div>
+                    </section>
                 </div>
             </div>
+            <ReactTooltip />
         </div>
     );
 }
