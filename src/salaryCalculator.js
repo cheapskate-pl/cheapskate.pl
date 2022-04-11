@@ -1,17 +1,21 @@
 
 const secondThreshold = 120000
 
+const taxReducintAmmountPit17 = 5100
+const taxReducintAmmountPit12 = 3600
+
 const months = [
     'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
 ]
 
 export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
-                          incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate, hasChildren, childrenNumber) {
+                          incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate, hasChildren, childrenNumber, use12Percent) {
     const newRows = [];
 
     let increasedCostsFromBeginning = 0;
 
     const incomeCosts = (workLocally ? 250 : 300)
+    const taxReducintAmmount = use12Percent ? taxReducintAmmountPit12 : taxReducintAmmountPit17
 
     for (let month = 0; month < 12; month++) {
 
@@ -57,25 +61,29 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
         let pitWhenCommonSettlement
         let pit32 = false
 
+        const pitRate = use12Percent ? 0.12 : 0.17
+
         if ((pitBaseSinceBeginning + pitBase) < secondThreshold) {
-            pit = (pitBase * 0.17);
+            pit = (pitBase *pitRate);
         } else if ((pitBaseSinceBeginning + pitBase) > secondThreshold) {
             const pit17Base = Math.max(0, secondThreshold - pitBaseSinceBeginning)
             const pit32Base = pitBase - pit17Base;
-            pit = (pit17Base * 0.17) + (pit32Base * 0.32)
+            pit = (pit17Base * pitRate) + (pit32Base * 0.32)
             pit32 = true;
         }
 
         if ((pitBaseSinceBeginning + pitBase) < (secondThreshold * 2)) {
-            pitWhenCommonSettlement = (pitBase * 0.17);
+            pitWhenCommonSettlement = (pitBase * pitRate);
         } else if ((pitBaseSinceBeginning + pitBase) > (secondThreshold * 2)) {
             const pit17Base = Math.max(0, (secondThreshold * 2) - pitBaseSinceBeginning)
             const pit32Base = pitBase - pit17Base;
-            pitWhenCommonSettlement = (pit17Base * 0.17) + (pit32Base * 0.32)
+            pitWhenCommonSettlement = (pit17Base *pitRate) + (pit32Base * 0.32)
         }
 
-        pit = pit - (pit2Checked ? (5100 / 12) : 0)
-        pitWhenCommonSettlement = pitWhenCommonSettlement - (pit2Checked ? (10200 / 12) : 0)
+        
+
+        pit = pit - (pit2Checked ? (taxReducintAmmount / 12) : 0)
+        pitWhenCommonSettlement = pitWhenCommonSettlement - (pit2Checked ? ((taxReducintAmmount*2) / 12) : 0)
 
         newRows.push({
             grossSalary,
@@ -99,7 +107,7 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
 
     let taxReturn = 0;
     if(!pit2Checked) {
-        taxReturn += 5100 + (commonSettlement ? 5100 : 0)
+        taxReturn += taxReducintAmmount + (commonSettlement ? taxReducintAmmount : 0)
     }
     if(commonSettlement) {
         let additionalReturn = 0;

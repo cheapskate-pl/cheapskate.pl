@@ -37,6 +37,7 @@ const defaults = {
     taxReturn: 0,
     childrenNumber: 0,
     hasChildren: false,
+    use12Percent: false,
     rows: months.map(() => ({...defaultMonthValue}))
 };
 
@@ -76,6 +77,7 @@ function App() {
     const [rows, setRows] = useState(getInitialValue("rows"));
     const [hasChildren, setHasChildren] = useState(getInitialValue("hasChildren"));
     const [childrenNumber, setChildrenNumber] = useState(getInitialValue("childrenNumber"));
+    const [use12Percent, setUse12Percent] = useState(getInitialValue("use12Percent"));
     
 
     useEffect(() => {
@@ -95,6 +97,7 @@ function App() {
             commonSettlementWithSeparateSalary,
             hasChildren,
             childrenNumber,
+            use12Percent,
             rows
         }
         localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -112,6 +115,7 @@ function App() {
         commonSettlement,
         commonSettlementWithSeparateSalary,
         hasChildren,
+        use12Percent,
         childrenNumber,
         rows]);
 
@@ -133,7 +137,7 @@ function App() {
 
     const calculate = (rows) => {
         const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-            ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber)
+            ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent)
         setRows(result.rows)
         changeTaxReturn(result.taxReturn)
     }
@@ -155,7 +159,7 @@ function App() {
         calculate(rows);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-        ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber])
+        ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent])
 
     const updateGrossInMonth = (month) => (event) => {
         const newRows = rows.map((row, index) => {
@@ -333,6 +337,12 @@ function App() {
                                                checked={workLocally}
                                                onChange={handleCheckboxInputChange(changeWorkLocally)}></input>
                                         <label htmlFor="workplaceCheckbox">Pracuję w miejscu zamieszkania</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="use12Percent"
+                                               checked={use12Percent}
+                                               onChange={handleCheckboxInputChange(setUse12Percent)}></input>
+                                        <label htmlFor="use12Percent">Zastosuj stawkę PIT 12% (Nowy Nowy Polski Ład)</label>
                                     </li>
                                 </ul>
                             </article>
