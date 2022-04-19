@@ -73,7 +73,6 @@ function App() {
     const [taxReturn, changeTaxReturn] = useState(getInitialValue("taxReturn"));
     const [commonSettlement, changeCommonSettlement] = useState(getInitialValue("commonSettlement"));
     const [commonSettlementWithSeparateSalary, changeCommonSettlementWithSeparateSalary] = useState(getInitialValue("commonSettlementWithSeparateSalary"));
-    const [payAlways17, setPayAlways17] = useState(getInitialValue("payAlways17"));
     const [rows, setRows] = useState(getInitialValue("rows"));
     const [hasChildren, setHasChildren] = useState(getInitialValue("hasChildren"));
     const [childrenNumber, setChildrenNumber] = useState(getInitialValue("childrenNumber"));
