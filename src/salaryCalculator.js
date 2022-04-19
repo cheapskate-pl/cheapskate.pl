@@ -134,7 +134,7 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
             taxReturn +=thirdChildReduction
         }
         if(childrenNumber > 3) {
-            taxReturn += nextChildReduction * (3-childrenNumber)
+            taxReturn += nextChildReduction * (childrenNumber-3)
         }
 
     }
