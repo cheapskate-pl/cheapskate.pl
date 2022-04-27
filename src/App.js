@@ -3,7 +3,7 @@ import * as React from 'react';
 import {Fragment, useEffect, useState} from 'react';
 import {calculateSalary} from "./salaryCalculator";
 import ReactTooltip from 'react-tooltip';
-import { months} from './constants' 
+import {months} from './constants'
 
 
 const plnFormatter = new Intl.NumberFormat('pl-PL', {
@@ -38,6 +38,8 @@ const defaults = {
     childrenNumber: 0,
     hasChildren: false,
     use12Percent: false,
+    esppOn: false,
+    esppContribution: 0,
     rows: months.map(() => ({...defaultMonthValue}))
 };
 
@@ -51,7 +53,7 @@ function getInitialValue(name) {
 }
 
 function pitDetails(row) {
-    if(!row.pit32) {
+    if (!row.pit32) {
         return `stawka 17%`
     }
     return `stawka 32%`
@@ -77,7 +79,9 @@ function App() {
     const [hasChildren, setHasChildren] = useState(getInitialValue("hasChildren"));
     const [childrenNumber, setChildrenNumber] = useState(getInitialValue("childrenNumber"));
     const [use12Percent, setUse12Percent] = useState(getInitialValue("use12Percent"));
-    
+    const [esppOn, setEsppOn] = useState(getInitialValue("esppOn"));
+    const [esppContribution, setEsppContribution] = useState(getInitialValue("esppContribution"));
+
 
     useEffect(() => {
         const state = {
@@ -97,6 +101,8 @@ function App() {
             hasChildren,
             childrenNumber,
             use12Percent,
+            esppContribution,
+            esppOn,
             rows
         }
         localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -116,6 +122,8 @@ function App() {
         hasChildren,
         use12Percent,
         childrenNumber,
+        esppContribution,
+        esppOn,
         rows]);
 
 
@@ -136,7 +144,7 @@ function App() {
 
     const calculate = (rows) => {
         const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-            ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent)
+            ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution)
         setRows(result.rows)
         changeTaxReturn(result.taxReturn)
     }
@@ -158,7 +166,7 @@ function App() {
         calculate(rows);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-        ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent])
+        ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution])
 
     const updateGrossInMonth = (month) => (event) => {
         const newRows = rows.map((row, index) => {
@@ -341,7 +349,8 @@ function App() {
                                         <input type="checkbox" id="use12Percent"
                                                checked={use12Percent}
                                                onChange={handleCheckboxInputChange(setUse12Percent)}></input>
-                                        <label htmlFor="use12Percent">Zastosuj stawkę PIT 12% (Nowy Nowy Polski Ład)</label>
+                                        <label htmlFor="use12Percent">Zastosuj stawkę PIT 12% (Nowy Nowy Polski
+                                            Ład)</label>
                                     </li>
                                 </ul>
                             </article>
@@ -362,12 +371,34 @@ function App() {
                                     </li>
                                     {
                                         hasChildren ?
-                                        <li>
-                                        <input type="number" id="childrenNumber" value={childrenNumber}
-                                               onChange={handleSelectInputChange(setChildrenNumber)}>
+                                            <li>
+                                                <input type="number" id="childrenNumber" value={childrenNumber}
+                                                       onChange={handleSelectInputChange(setChildrenNumber)}>
+                                                </input>
+                                                <label htmlFor="childrenNumber">Ilosć dzieci</label>
+                                            </li> : ''
+                                    }
+                                </ul>
+
+                            </article>
+                            <article>
+                                <h4>ESPP</h4>
+                                <ul className="actions">
+                                    <li>
+                                        <input type="checkbox" id="esppOn" checked={esppOn}
+                                               onChange={handleCheckboxInputChange(setEsppOn)}>
                                         </input>
-                                        <label htmlFor="childrenNumber">Ilosć dzieci</label>
-                                    </li> : ''
+                                        <label htmlFor="esppOn">Uczestniczę w ESPP</label>
+                                    </li>
+                                    {
+                                        esppOn ?
+                                            <li>
+                                                <label htmlFor="childrenNumber">Procent uczestnictwa (od kwoty brutto)</label>
+                                                <input type="range" id="childrenNumber" value={esppContribution}
+                                                       onChange={handleSelectInputChange(setEsppContribution)} min={1} max={15}>
+                                                </input>
+                                                <h5 style={{'display': 'inline'}}>{esppContribution} %</h5>
+                                            </li> : ''
                                     }
                                 </ul>
 
@@ -416,6 +447,7 @@ function App() {
                                     <td>Składka zdrowotna</td>
                                     <td>Zaliczka PIT</td>
                                     {ppkOn ? <td>PPK pracownika</td> : undefined}
+                                    {esppOn ? <td>Wartość ESPP</td> : undefined}
                                     <td>Netto</td>
                                 </tr>
                                 </thead>
@@ -438,8 +470,11 @@ function App() {
                                             <td>{plnFormatter.format(row.disabilityPensionContribution)}</td>
                                             <td>{plnFormatter.format(row.sicknessContribution)}</td>
                                             <td>{plnFormatter.format(row.healthCareContribution)}</td>
-                                            <td><p data-multiline="true" data-tip={pitDetails(row)}>{plnFormatter.format(row.pit)}</p></td>
+                                            <td data-multiline="true"
+                                                   data-tip={pitDetails(row)}>{plnFormatter.format(row.pit)}
+                                            </td>
                                             {ppkOn ? <td>{plnFormatter.format(row.ppkEmployee)}</td> : undefined}
+                                            {esppOn ? <td>{plnFormatter.format(row.esppValue)}</td> : undefined}
                                             <td><strong>{plnFormatter.format(row.netto)}</strong></td>
                                         </tr>)
                                     }
@@ -449,11 +484,11 @@ function App() {
                         </div>
                     </section>
                     <section>
-                    <header className="major">
+                        <header className="major">
                             <h3>Podsumowanie roku</h3>
                         </header>
                         <div className="table-wrapper">
-                        <table>
+                            <table>
                                 <thead>
                                 <tr>
                                     <td>Suma wynagrodzenia brutto z benefitami</td>
@@ -466,22 +501,25 @@ function App() {
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td>{plnFormatter.format(rows.map(row => row.grossSalary + row.benefitsSalary).reduce((a,b) => a+b))}</td>
-                                    <td>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a,b) => a+b))}&nbsp;
-                                    ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a,b) => a+b))},&nbsp;  
-                                    {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a,b) => a+b))})</td>
-                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a,b) => a+b))}</td>
-                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a,b) => a+b) / 12)}</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.grossSalary + row.benefitsSalary).reduce((a, b) => a + b))}</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}&nbsp;
+                                        ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
+                                        {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})
+                                    </td>
+                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b))}</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b) / 12)}</td>
                                     <td>{plnFormatter.format(taxReturn)}</td>
-                                    <td><b>{plnFormatter.format((rows.map(row => row.netto).reduce((a,b) => a+b) + taxReturn)/12)}</b></td>
+                                    <td>
+                                        <b>{plnFormatter.format((rows.map(row => row.netto).reduce((a, b) => a + b) + taxReturn) / 12)}</b>
+                                    </td>
                                 </tr>
                                 </tbody>
-                                </table>
+                            </table>
                         </div>
                     </section>
                 </div>
             </div>
-            <ReactTooltip />
+            <ReactTooltip/>
         </div>
     );
 }

@@ -9,7 +9,8 @@ const months = [
 ]
 
 export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
-                          incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate, hasChildren, childrenNumber, use12Percent) {
+                          incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate, hasChildren, childrenNumber, use12Percent,
+                                esppON, esppContribution) {
     const newRows = [];
 
     let increasedCostsFromBeginning = 0;
@@ -85,6 +86,10 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
         pit = pit - (pit2Checked ? (taxReducintAmmount / 12) : 0)
         pitWhenCommonSettlement = pitWhenCommonSettlement - (pit2Checked ? ((taxReducintAmmount*2) / 12) : 0)
 
+        let esppValue = 0
+        if(esppON) {
+            esppValue =grossSalary * (esppContribution/100);
+        }
         newRows.push({
             grossSalary,
             benefitsSalary,
@@ -96,11 +101,13 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
             healthCareContribution: healthCareContribution,
             pit: Math.round(pit),
             pitWhenCommonSettlement,
+            esppOn: esppON,
+            esppValue: esppValue,
             pit32,
             ppkEmployer,
             ppkEmployee,
             aboveCostDeduction: increasedCostsDeductionApplied,
-            netto: grossSalary - sicknessContribution - disabilityPensionContribution - pensionContribution - healthCareContribution - Math.round(pit) - ppkEmployee
+            netto: grossSalary - sicknessContribution - disabilityPensionContribution - pensionContribution - healthCareContribution - Math.round(pit) - ppkEmployee - esppValue
         });
     }
 
