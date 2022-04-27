@@ -1,4 +1,3 @@
-
 const secondThreshold = 120000
 
 const taxReducintAmmountPit17 = 5100
@@ -9,8 +8,8 @@ const months = [
 ]
 
 export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
-                          incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate, hasChildren, childrenNumber, use12Percent,
-                                esppON, esppContribution) {
+                                incresedConstsBeginningMonth, increasedCostsRate, commonSettlement, ppkOn, ppkBeginningMonth, employeePPKRate, employerPPKRate, hasChildren, childrenNumber, use12Percent,
+                                esppON, esppContribution, esppStartMonth, esppEndMonth) {
     const newRows = [];
 
     let increasedCostsFromBeginning = 0;
@@ -65,7 +64,7 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
         const pitRate = use12Percent ? 0.12 : 0.17
 
         if ((pitBaseSinceBeginning + pitBase) < secondThreshold) {
-            pit = (pitBase *pitRate);
+            pit = (pitBase * pitRate);
         } else if ((pitBaseSinceBeginning + pitBase) > secondThreshold) {
             const pit17Base = Math.max(0, secondThreshold - pitBaseSinceBeginning)
             const pit32Base = pitBase - pit17Base;
@@ -78,17 +77,16 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
         } else if ((pitBaseSinceBeginning + pitBase) > (secondThreshold * 2)) {
             const pit17Base = Math.max(0, (secondThreshold * 2) - pitBaseSinceBeginning)
             const pit32Base = pitBase - pit17Base;
-            pitWhenCommonSettlement = (pit17Base *pitRate) + (pit32Base * 0.32)
+            pitWhenCommonSettlement = (pit17Base * pitRate) + (pit32Base * 0.32)
         }
 
-        
 
         pit = pit - (pit2Checked ? (taxReducintAmmount / 12) : 0)
-        pitWhenCommonSettlement = pitWhenCommonSettlement - (pit2Checked ? ((taxReducintAmmount*2) / 12) : 0)
+        pitWhenCommonSettlement = pitWhenCommonSettlement - (pit2Checked ? ((taxReducintAmmount * 2) / 12) : 0)
 
         let esppValue = 0
-        if(esppON) {
-            esppValue =grossSalary * (esppContribution/100);
+        if (esppON && month >= esppStartMonth && month <= esppEndMonth) {
+            esppValue = grossSalary * (esppContribution / 100);
         }
         newRows.push({
             grossSalary,
@@ -113,35 +111,35 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
 
 
     let taxReturn = 0;
-    if(!pit2Checked) {
+    if (!pit2Checked) {
         taxReturn += taxReducintAmmount + (commonSettlement ? taxReducintAmmount : 0)
     }
-    if(commonSettlement) {
+    if (commonSettlement) {
         let additionalReturn = 0;
-        if(commonSettlement) {
+        if (commonSettlement) {
             for (const newRow of newRows) {
-                additionalReturn+=newRow.pit - newRow.pitWhenCommonSettlement
+                additionalReturn += newRow.pit - newRow.pitWhenCommonSettlement
             }
         }
-        taxReturn+=additionalReturn
+        taxReturn += additionalReturn
 
     }
-    if(hasChildren) {
+    if (hasChildren) {
         const firstAndSecondChildReduction = 1112.04
         const thirdChildReduction = 2000.04
-        const nextChildReduction =  2700.00
+        const nextChildReduction = 2700.00
 
-        if(childrenNumber > 0) {
-            taxReturn +=firstAndSecondChildReduction
+        if (childrenNumber > 0) {
+            taxReturn += firstAndSecondChildReduction
         }
-        if(childrenNumber > 1) {
-            taxReturn +=firstAndSecondChildReduction
+        if (childrenNumber > 1) {
+            taxReturn += firstAndSecondChildReduction
         }
-        if(childrenNumber > 2) {
-            taxReturn +=thirdChildReduction
+        if (childrenNumber > 2) {
+            taxReturn += thirdChildReduction
         }
-        if(childrenNumber > 3) {
-            taxReturn += nextChildReduction * (childrenNumber-3)
+        if (childrenNumber > 3) {
+            taxReturn += nextChildReduction * (childrenNumber - 3)
         }
 
     }

@@ -40,6 +40,8 @@ const defaults = {
     use12Percent: false,
     esppOn: false,
     esppContribution: 0,
+    esppStartMonth: 0,
+    esppEndMonth: 11,
     rows: months.map(() => ({...defaultMonthValue}))
 };
 
@@ -81,6 +83,8 @@ function App() {
     const [use12Percent, setUse12Percent] = useState(getInitialValue("use12Percent"));
     const [esppOn, setEsppOn] = useState(getInitialValue("esppOn"));
     const [esppContribution, setEsppContribution] = useState(getInitialValue("esppContribution"));
+    const [esppStartMonth, setEsppStartMonth] = useState(getInitialValue("esppStartMonth"));
+    const [esppEndMonth, setEsppEndMonth] = useState(getInitialValue("esppEndMonth"));
 
 
     useEffect(() => {
@@ -103,6 +107,8 @@ function App() {
             use12Percent,
             esppContribution,
             esppOn,
+            esppStartMonth,
+            esppEndMonth,
             rows
         }
         localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -123,6 +129,8 @@ function App() {
         use12Percent,
         childrenNumber,
         esppContribution,
+        esppStartMonth,
+        esppEndMonth,
         esppOn,
         rows]);
 
@@ -144,7 +152,8 @@ function App() {
 
     const calculate = (rows) => {
         const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-            ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution)
+            ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution, esppStartMonth,
+            esppEndMonth)
         setRows(result.rows)
         changeTaxReturn(result.taxReturn)
     }
@@ -166,7 +175,8 @@ function App() {
         calculate(rows);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
-        ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution])
+        ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution, esppStartMonth,
+        esppEndMonth])
 
     const updateGrossInMonth = (month) => (event) => {
         const newRows = rows.map((row, index) => {
@@ -221,7 +231,7 @@ function App() {
                                     <li>
                                         <h4>Wynagrodzenie brutto</h4>
                                         <input type="number" onChange={onGrossSalaryChange} value={grossSalary}></input>
-                                        <p>Wpisz kwotę, która widnienie na Twoje umowie o pracę. Uwzględnij tylko
+                                        <p>Wpisz kwotę, która widnieje na Twoje umowie o pracę. Uwzględnij tylko
                                             wynagrodzenie
                                             w formie pieniężnej.</p>
                                     </li>
@@ -229,12 +239,11 @@ function App() {
                                         <h4>Świadczenia niepieniężne (benefity)</h4>
                                         <input type="number" onChange={onBenefitsSalaryChange}
                                                value={benefitsSalary}></input>
-                                        <p>Podaj wartosc wszsystkich dodatkowych składników wynagrodznie, które nie są
-                                            wypłacanie
-                                            w formie pieniężnej, np. ubezpieczenie medyczne lub karnet na siłownie.</p>
+                                        <p>Podaj wartość wszystkich dodatkowych składników wynagrodzenia, które nie są
+                                            wypłacane w formie pieniężnej, np. ubezpieczenie medyczne lub karnet na siłownie.</p>
                                     </li>
                                     <li>
-                                        <button onClick={copyGross}>Użyj dla wszsytkich miesięcy</button>
+                                        <button onClick={copyGross}>Użyj dla wszystkich miesięcy</button>
                                     </li>
                                 </ul>
 
@@ -296,7 +305,7 @@ function App() {
                                                onChange={handleCheckboxInputChange(changeIncreasedCosts)}>
                                         </input>
                                         <label htmlFor="kupCheckbox">
-                                            Stosuję autorskie koszty uzyskania przychodu.
+                                            Stosuję autorskie koszty uzyskania przychodu
                                         </label>
                                     </li>
                                     {increasedCosts ?
@@ -337,7 +346,7 @@ function App() {
                                     <li>
                                         <input type="checkbox" id="pit2checkbox" checked={pit2Checked}
                                                onChange={handleCheckboxInputChange(changePit2Checked)}></input>
-                                        <label htmlFor="pit2checkbox">Złożylem PIT-2</label>
+                                        <label htmlFor="pit2checkbox">Złożyłem PIT-2</label>
                                     </li>
                                     <li>
                                         <input type="checkbox" id="workplaceCheckbox"
@@ -355,7 +364,7 @@ function App() {
                                 </ul>
                             </article>
                             <article>
-                                <h4>Wspólne rozlicznie z małżonkiem i ulgi</h4>
+                                <h4>Wspólne rozliczanie z małżonkiem i ulgi</h4>
                                 <ul className="actions">
                                     <li>
                                         <input type="checkbox" id="commonSettlement" checked={commonSettlement}
@@ -375,7 +384,7 @@ function App() {
                                                 <input type="number" id="childrenNumber" value={childrenNumber}
                                                        onChange={handleSelectInputChange(setChildrenNumber)}>
                                                 </input>
-                                                <label htmlFor="childrenNumber">Ilosć dzieci</label>
+                                                <label htmlFor="childrenNumber">Ilość dzieci</label>
                                             </li> : ''
                                     }
                                 </ul>
@@ -391,14 +400,36 @@ function App() {
                                         <label htmlFor="esppOn">Uczestniczę w ESPP</label>
                                     </li>
                                     {
-                                        esppOn ?
+                                        esppOn ? <Fragment>
                                             <li>
-                                                <label htmlFor="childrenNumber">Procent uczestnictwa (od kwoty brutto)</label>
-                                                <input type="range" id="childrenNumber" value={esppContribution}
+                                                <input style={{'display': 'inline'}} type="range" id="childrenNumber" value={esppContribution}
                                                        onChange={handleSelectInputChange(setEsppContribution)} min={1} max={15}>
-                                                </input>
-                                                <h5 style={{'display': 'inline'}}>{esppContribution} %</h5>
-                                            </li> : ''
+                                                </input> <b>{esppContribution} %</b>
+                                                <label htmlFor="childrenNumber">Procent uczestnictwa (od kwoty brutto)</label>
+
+                                            </li>
+                                            <li>
+                                                <select value={esppStartMonth}
+                                                        onChange={handleSelectInputChange(setEsppStartMonth)}>
+                                                    {months.map((month, index) => (
+                                                            <option label={month}>{index}</option>
+                                                        )
+                                                    )}
+                                                </select>
+                                                <label>Miesiąc od którego stosować</label>
+                                            </li>
+                                            <li>
+                                                <select value={esppEndMonth}
+                                                        onChange={handleSelectInputChange(setEsppEndMonth)}>
+                                                    {months.map((month, index) => (
+                                                            <option label={month}>{index}</option>
+                                                        )
+                                                    )}
+                                                </select>
+                                                <label>Miesiąc do którego stosować</label>
+                                            </li>
+                                        </Fragment> : ''
+
                                     }
                                 </ul>
 
@@ -432,7 +463,43 @@ function App() {
                     </section>
                     <section>
                         <header className="major">
-                            <h3>Wynagrodznie misięczne</h3>
+                            <h3>Podsumowanie roku</h3>
+                        </header>
+                        <div className="table-wrapper">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <td>Suma wynagrodzenia <br/>(brutto z benefitami)</td>
+                                    <td>Suma PPK <br/>(pracodawcy, pracownika)</td>
+                                    <td>Suma Netto{esppOn ? <Fragment><br/>(bez ESPP)</Fragment> :''}</td>
+                                    <td>Średnio Netto{esppOn ? <Fragment><br/>(bez ESPP)</Fragment> :''}</td>
+                                    <td>Zwrot podatku</td>
+                                    {esppOn ? <td>ESPP <br/>(bez zysku)</td> : ''}
+                                    <td>Średnio Netto<br/>(uwzględniąjac zwrot podatku{esppOn ? ' oraz ESPP)' : ')'}</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>{plnFormatter.format(rows.map(row => row.grossSalary + row.benefitsSalary).reduce((a, b) => a + b))}</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}&nbsp;
+                                        ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
+                                        {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})
+                                    </td>
+                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b))}</td>
+                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b) / 12)}</td>
+                                    <td>{plnFormatter.format(taxReturn)}</td>
+                                    {esppOn ? <td>{plnFormatter.format(rows.map(row => row.esppValue).reduce((a, b) => a + b))}</td> : ''}
+                                    <td>
+                                        <b>{plnFormatter.format((rows.map(row => row.netto + row.esppValue).reduce((a, b) => a + b) + taxReturn) / 12)}</b>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <section>
+                        <header className="major">
+                            <h3>Wynagrodzenie miesięczne</h3>
                         </header>
                         <div className="table-wrapper">
                             <table>
@@ -448,7 +515,7 @@ function App() {
                                     <td>Zaliczka PIT</td>
                                     {ppkOn ? <td>PPK pracownika</td> : undefined}
                                     {esppOn ? <td>Wartość ESPP</td> : undefined}
-                                    <td>Netto</td>
+                                    <td>Wypłata</td>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -483,40 +550,7 @@ function App() {
                             </table>
                         </div>
                     </section>
-                    <section>
-                        <header className="major">
-                            <h3>Podsumowanie roku</h3>
-                        </header>
-                        <div className="table-wrapper">
-                            <table>
-                                <thead>
-                                <tr>
-                                    <td>Suma wynagrodzenia brutto z benefitami</td>
-                                    <td>Suma PPK (pracodawcy, pracownika)</td>
-                                    <td>Suma Netto</td>
-                                    <td>Srednia Netto</td>
-                                    <td>Zwrot podatku</td>
-                                    <td>Srednia Netto<br/> uwzgledniajac zwrot podatku</td>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td>{plnFormatter.format(rows.map(row => row.grossSalary + row.benefitsSalary).reduce((a, b) => a + b))}</td>
-                                    <td>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}&nbsp;
-                                        ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
-                                        {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})
-                                    </td>
-                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b))}</td>
-                                    <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b) / 12)}</td>
-                                    <td>{plnFormatter.format(taxReturn)}</td>
-                                    <td>
-                                        <b>{plnFormatter.format((rows.map(row => row.netto).reduce((a, b) => a + b) + taxReturn) / 12)}</b>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
+
                 </div>
             </div>
             <ReactTooltip/>
