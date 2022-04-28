@@ -466,37 +466,27 @@ function Employment() {
                 <header className="major">
                     <h3>Podsumowanie roku</h3>
                 </header>
-                <div className="table-wrapper">
-                    <table>
-                        <thead>
-                        <tr>
-                            <td>Suma wynagrodzenia <br/>(brutto z benefitami)</td>
-                            <td>Suma PPK <br/>(pracodawcy, pracownika)</td>
-                            <td>Suma Netto{esppOn ? <Fragment><br/>(bez ESPP)</Fragment> : ''}</td>
-                            <td>Średnio Netto{esppOn ? <Fragment><br/>(bez ESPP)</Fragment> : ''}</td>
-                            <td>Zwrot podatku</td>
-                            {esppOn ? <td>ESPP <br/>(bez zysku)</td> : ''}
-                            <td>Średnio Netto<br/>(uwzględniąjac zwrot podatku{esppOn ? ' oraz ESPP)' : ')'}</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>{plnFormatter.format(rows.map(row => row.grossSalary + row.benefitsSalary).reduce((a, b) => a + b))}</td>
-                            <td>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}&nbsp;
-                                ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
-                                {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})
-                            </td>
-                            <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b))}</td>
-                            <td>{plnFormatter.format(rows.map(row => row.netto).reduce((a, b) => a + b) / 12)}</td>
-                            <td>{plnFormatter.format(taxReturn)}</td>
-                            {esppOn ?
-                                <td>{plnFormatter.format(rows.map(row => row.esppValue).reduce((a, b) => a + b))}</td> : ''}
-                            <td>
-                                <b>{plnFormatter.format((rows.map(row => row.netto + row.esppValue).reduce((a, b) => a + b) + taxReturn) / 12)}</b>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div><h4
+                    style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto + row.esppValue) + taxReturn) / 12)}</h4> -
+                    Średnio do ręki miesięcznie uwzględniąjac zwrot podatku{esppOn ? ' oraz ESPP' : ''} </div>
+                <div>
+                    <h4 style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto) + taxReturn) / 12)}</h4> -
+                    Średnio do ręki miesięcznie {esppOn ? '(bez ESPP)' : ''}</div>
+                <div>
+                    <h4 style={{display: 'inline'}}>
+                        {plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}</h4>&nbsp;
+                    <h5 style={{display: 'inline'}}>({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
+                        {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})</h5> - Suma PPK
+                    (pracodawcy, pracownika)
+                </div>
+                <div>
+                    <h4 style={{display: 'inline'}}>{plnFormatter.format(taxReturn)}</h4> - Zwrot podatku
+                </div>
+                <div>
+                    <h4 style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.grossSalary))}</h4> - Suma brutto
+                </div>
+                <div>
+                    <h4 style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.benefitsSalary))}</h4> - Suma benefitów
                 </div>
             </section>
             <section>
@@ -559,3 +549,6 @@ function Employment() {
 export default Employment;
 
 
+function sum(array, func) {
+    return array.map(func).reduce((a, b) => a + b)
+}
