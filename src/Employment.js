@@ -9,6 +9,9 @@ import {months} from './constants'
 const plnFormatter = new Intl.NumberFormat('pl-PL', {
     style: 'currency',
     currency: 'PLN',
+    useGrouping: false,
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2
 });
 
 
@@ -42,6 +45,8 @@ const defaults = {
     esppContribution: 0,
     esppStartMonth: 0,
     esppEndMonth: 11,
+    under26: false,
+    familyPlus: false,
     rows: months.map(() => ({...defaultMonthValue}))
 };
 
@@ -85,6 +90,8 @@ function Employment() {
     const [esppContribution, setEsppContribution] = useState(getInitialValue("esppContribution"));
     const [esppStartMonth, setEsppStartMonth] = useState(getInitialValue("esppStartMonth"));
     const [esppEndMonth, setEsppEndMonth] = useState(getInitialValue("esppEndMonth"));
+    const [under26, setUnder26] = useState(getInitialValue("under26"));
+    const [familyPlus, setFamilyPlus] = useState(getInitialValue("familyPlus"));
 
 
     useEffect(() => {
@@ -109,6 +116,8 @@ function Employment() {
             esppOn,
             esppStartMonth,
             esppEndMonth,
+            under26,
+            familyPlus,
             rows
         }
         localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -132,6 +141,8 @@ function Employment() {
         esppStartMonth,
         esppEndMonth,
         esppOn,
+        under26,
+        familyPlus,
         rows]);
 
 
@@ -153,7 +164,7 @@ function Employment() {
     const calculate = (rows) => {
         const result = calculateSalary(rows, workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
             ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution, esppStartMonth,
-            esppEndMonth)
+            esppEndMonth, under26, familyPlus)
         setRows(result.rows)
         changeTaxReturn(result.taxReturn)
     }
@@ -176,7 +187,7 @@ function Employment() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [workLocally, pit2Checked, increasedCosts, increasedCostsBeginningMonth, increasedCostsRate, commonSettlement,
         ppkOn, ppkBeginningMonth, employeePPK, employerPPK, hasChildren, childrenNumber, use12Percent, esppOn, esppContribution, esppStartMonth,
-        esppEndMonth])
+        esppEndMonth, under26, familyPlus])
 
     const updateGrossInMonth = (month) => (event) => {
         const newRows = rows.map((row, index) => {
@@ -367,6 +378,18 @@ function Employment() {
                         <h4>Wspólne rozliczanie z małżonkiem i ulgi</h4>
                         <ul className="actions">
                             <li>
+                                <input type="checkbox" id="under26" checked={under26}
+                                       onChange={handleCheckboxInputChange(setUnder26)}>
+                                </input>
+                                <label htmlFor="under26">Zastosuj ulgę dla osób do 26 roku życia</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="familyPlus" checked={familyPlus}
+                                       onChange={handleCheckboxInputChange(setFamilyPlus)}>
+                                </input>
+                                <label htmlFor="familyPlus">Zastosuj ulgę dla rodzin 4+</label>
+                            </li>
+                            <li>
                                 <input type="checkbox" id="commonSettlement" checked={commonSettlement}
                                        onChange={handleCheckboxInputChange(changeCommonSettlementAndClearState)}>
                                 </input>
@@ -469,34 +492,82 @@ function Employment() {
                 <div className="row">
                     <div className="col-6 col-12-medium">
                             <ul className="alt">
-                                <li><h4
-                                    style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto + row.esppValue) + taxReturn) / 12)}</h4> -
-                                    Średnio do ręki miesięcznie uwzględniąjac zwrot podatku{esppOn ? ' oraz ESPP' : ''}
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format((sum(rows, row => row.netto + row.esppValue) + taxReturn) / 12)}</b>
+                                    </span>
+                                    <span className="col-10">Średnio do ręki miesięcznie uwzględniąjac zwrot podatku{esppOn ? ' oraz ESPP' : ''}</span>
                                 </li>
-                                <li><h4
-                                    style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto) + taxReturn) / 12)}</h4> -
-                                    Średnio do ręki miesięcznie {esppOn ? '(bez ESPP)' : ''}</li>
-                                <li><h4
-                                    style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}</h4> -
-                                    Suma PPK (<h5
-                                        style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))}</h5> - Pracodawcy, &nbsp;
-                                        <h5 style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))}</h5> - Pracownika)
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format((sum(rows, row => row.netto)) / 12)}</b>
+                                    </span>
+                                    <span className="col-10">Średnio do ręki miesięcznie {esppOn ? '(bez ESPP)' : ''}</span>
+                                </li>
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(taxReturn)}</b>
+                                    </span>
+                                    <span className="col-10">Zwrot podatku</span>
                                 </li>
                             </ul>
                     </div>
                     <div className="col-6 col-12-medium">
                             <ul className="alt">
-                                <li><h4
-                                    style={{display: 'inline'}}>{plnFormatter.format(taxReturn)}</h4> -
-                                    Zwrot podatku
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.grossSalary))}</b>
+                                    </span>
+                                    <span className="col-10">Suma brutto</span>
                                 </li>
-                                <li><h4
-                                    style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.grossSalary))}</h4> -
-                                    Suma brutto
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.benefitsSalary))}</b>
+                                    </span>
+                                    <span className="col-10">Suma benefitów</span>
                                 </li>
-                                <li><h4
-                                    style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.benefitsSalary))}</h4> -
-                                    Suma benefitów
+                                {ppkOn ? <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.ppkEmployee + row.ppkEmployer))}</b>
+                                    </span>
+                                    <span className="col-10">Suma PPK (<h5
+                                        style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))}</h5> - Pracodawcy, &nbsp;
+                                        <h5 style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))}</h5> - Pracownika)</span>
+                                </li> : ''}
+
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.pensionContribution))}</b>
+                                    </span>
+                                    <span className="col-10">Suma składek emerytalnych</span>
+                                </li>
+
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.disabilityPensionContribution))}</b>
+                                    </span>
+                                    <span className="col-10">Suma składek rentowych</span>
+                                </li>
+
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.healthCareContribution))}</b>
+                                    </span>
+                                    <span className="col-10">Suma składek zdrowotnych</span>
+                                </li>
+
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.sicknessContribution))}</b>
+                                    </span>
+                                    <span className="col-10">Suma składek chorobowych</span>
+                                </li>
+
+                                <li className="row">
+                                    <span className="col-2">
+                                        <b>{plnFormatter.format(sum(rows, row => row.pit) - taxReturn)}</b>
+                                    </span>
+                                    <span className="col-10">Suma PIT uwzględniając zwrot podatku</span>
                                 </li>
                             </ul>
                     </div>

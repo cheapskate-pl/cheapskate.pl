@@ -148,7 +148,7 @@ export function calculateSalary(rows, workLocally, pit2Checked, increasedCosts,
 }
 
 function calculatePensionContribution(monthIndex, grossSalary) {
-    const maxPensionContribution = 15398.35;
+    const maxPensionContribution = 17339.62
     const sumOfPensionContributionFromBeginning = monthIndex * (grossSalary * 0.0976)
     const currentPensionContribution = grossSalary * 0.0976
     if (sumOfPensionContributionFromBeginning > (maxPensionContribution - currentPensionContribution)) {
@@ -159,7 +159,7 @@ function calculatePensionContribution(monthIndex, grossSalary) {
 }
 
 function calculateDisabilityPensionContribution(monthIndex, grossSalary) {
-    const maxDisabilityPensionContribution = 2366.55;
+    const maxDisabilityPensionContribution = 2664.90;
     const sumOfPensionContributionFromBeginning = monthIndex * (grossSalary * 0.015)
     const currentMonthValue = grossSalary * 0.015
     if (sumOfPensionContributionFromBeginning > (maxDisabilityPensionContribution - currentMonthValue)) {
