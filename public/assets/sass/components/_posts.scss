@@ -19,7 +19,7 @@
 			@include vendor('flex-shrink', '1');
 			margin: 0 0 $gutter $gutter;
 			position: relative;
-			width: calc(#{(100% / 3)} - #{$gutter});
+			width: calc(#{(100% / 4)} - #{$gutter});
 
 			&:before {
 				background: _palette(border);

@@ -378,16 +378,16 @@ function Employment() {
                         <h4>Wspólne rozliczanie z małżonkiem i ulgi</h4>
                         <ul className="actions">
                             <li>
-                                <input type="checkbox" id="under26" checked={under26}
+                                <input type="checkbox" id="under26" checked={under26} disabled={true}
                                        onChange={handleCheckboxInputChange(setUnder26)}>
                                 </input>
-                                <label htmlFor="under26">Zastosuj ulgę dla osób do 26 roku życia</label>
+                                <label htmlFor="under26">Zastosuj ulgę dla osób do 26 roku życia (WIP)</label>
                             </li>
                             <li>
-                                <input type="checkbox" id="familyPlus" checked={familyPlus}
+                                <input type="checkbox" id="familyPlus" checked={familyPlus} disabled={true}
                                        onChange={handleCheckboxInputChange(setFamilyPlus)}>
                                 </input>
-                                <label htmlFor="familyPlus">Zastosuj ulgę dla rodzin 4+</label>
+                                <label htmlFor="familyPlus">Zastosuj ulgę dla rodzin 4+ (WIP)</label>
                             </li>
                             <li>
                                 <input type="checkbox" id="commonSettlement" checked={commonSettlement}
@@ -396,10 +396,16 @@ function Employment() {
                                 <label htmlFor="commonSettlement">Wspólne rozliczenie</label>
                             </li>
                             <li>
+                                <input type="checkbox" id="commonSettlementWithSeparateSalary" checked={commonSettlementWithSeparateSalary}
+                                       onChange={handleCheckboxInputChange(changeCommonSettlementWithSeparateSalary)} disabled={true}>
+                                </input>
+                                <label htmlFor="commonSettlementWithSeparateSalary">Chcę wprowadzić wynagrodznie małżonka (WIP)</label>
+                            </li>
+                            <li>
                                 <input type="checkbox" id="hasChildren" checked={hasChildren}
                                        onChange={handleCheckboxInputChange(setHasChildren)}>
                                 </input>
-                                <label htmlFor="hasChildren">Posiadam dzieci</label>
+                                <label htmlFor="hasChildren">Zastosuj ulgę prorodzinną</label>
                             </li>
                             {
                                 hasChildren ?
