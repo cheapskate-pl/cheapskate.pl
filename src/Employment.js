@@ -477,9 +477,10 @@ function Employment() {
                                     style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto) + taxReturn) / 12)}</h4> -
                                     Średnio do ręki miesięcznie {esppOn ? '(bez ESPP)' : ''}</li>
                                 <li><h4
-                                    style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))} ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
-                                    {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})</h4> -
-                                    Suma PPK (pracodawcy, pracownika)
+                                    style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}</h4> -
+                                    Suma PPK (<h5
+                                        style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))}</h5> - Pracodawcy, &nbsp;
+                                        <h5 style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))}</h5> - Pracownika)
                                 </li>
                             </ul>
                     </div>
