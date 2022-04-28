@@ -466,27 +466,39 @@ function Employment() {
                 <header className="major">
                     <h3>Podsumowanie roku</h3>
                 </header>
-                <div><h4
-                    style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto + row.esppValue) + taxReturn) / 12)}</h4> -
-                    Średnio do ręki miesięcznie uwzględniąjac zwrot podatku{esppOn ? ' oraz ESPP' : ''} </div>
-                <div>
-                    <h4 style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto) + taxReturn) / 12)}</h4> -
-                    Średnio do ręki miesięcznie {esppOn ? '(bez ESPP)' : ''}</div>
-                <div>
-                    <h4 style={{display: 'inline'}}>
-                        {plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))}</h4>&nbsp;
-                    <h5 style={{display: 'inline'}}>({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
-                        {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})</h5> - Suma PPK
-                    (pracodawcy, pracownika)
-                </div>
-                <div>
-                    <h4 style={{display: 'inline'}}>{plnFormatter.format(taxReturn)}</h4> - Zwrot podatku
-                </div>
-                <div>
-                    <h4 style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.grossSalary))}</h4> - Suma brutto
-                </div>
-                <div>
-                    <h4 style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.benefitsSalary))}</h4> - Suma benefitów
+                <div className="row">
+                    <div className="col-6 col-12-medium">
+                            <ul className="alt">
+                                <li><h4
+                                    style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto + row.esppValue) + taxReturn) / 12)}</h4> -
+                                    Średnio do ręki miesięcznie uwzględniąjac zwrot podatku{esppOn ? ' oraz ESPP' : ''}
+                                </li>
+                                <li><h4
+                                    style={{display: 'inline'}}>{plnFormatter.format((sum(rows, row => row.netto) + taxReturn) / 12)}</h4> -
+                                    Średnio do ręki miesięcznie {esppOn ? '(bez ESPP)' : ''}</li>
+                                <li><h4
+                                    style={{display: 'inline'}}>{plnFormatter.format(rows.map(row => row.ppkEmployee + row.ppkEmployer).reduce((a, b) => a + b))} ({plnFormatter.format(rows.map(row => row.ppkEmployer).reduce((a, b) => a + b))},&nbsp;
+                                    {plnFormatter.format(rows.map(row => row.ppkEmployee).reduce((a, b) => a + b))})</h4> -
+                                    Suma PPK (pracodawcy, pracownika)
+                                </li>
+                            </ul>
+                    </div>
+                    <div className="col-6 col-12-medium">
+                            <ul className="alt">
+                                <li><h4
+                                    style={{display: 'inline'}}>{plnFormatter.format(taxReturn)}</h4> -
+                                    Zwrot podatku
+                                </li>
+                                <li><h4
+                                    style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.grossSalary))}</h4> -
+                                    Suma brutto
+                                </li>
+                                <li><h4
+                                    style={{display: 'inline'}}>{plnFormatter.format(sum(rows, row => row.benefitsSalary))}</h4> -
+                                    Suma benefitów
+                                </li>
+                            </ul>
+                    </div>
                 </div>
             </section>
             <section>
